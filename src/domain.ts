@@ -36,6 +36,8 @@ export function parseJournal(text: string): Journal {
   }
   for (const [key, day] of Object.entries(j.days)) {
     if (!validKey(key) || !obj(day) || !obj(day.checks) || Object.values(day.checks).some(v => typeof v !== 'boolean') || !Array.isArray(day.tasks) || day.tasks.some(t => !obj(t) || typeof t.id !== 'string' || typeof t.title !== 'string' || typeof t.done !== 'boolean') || (day.mood !== undefined && (!Number.isInteger(day.mood) || day.mood < 1 || day.mood > 5)) || (day.sleep !== undefined && (!Number.isFinite(day.sleep) || day.sleep < 0 || day.sleep > 24)) || (day.note !== undefined && typeof day.note !== 'string')) throw new Error('일별 기록이 올바르지 않습니다.');
+    const taskIds = day.tasks.map(t => t.id);
+    if (taskIds.some(id => !id) || new Set(taskIds).size !== taskIds.length) throw new Error('할 일 식별자가 중복되거나 비어 있습니다.');
   }
   for (const [key, w] of Object.entries(j.weeks)) if (!validKey(key) || weekDays(key)[0] !== key || !obj(w) || ['goal', 'reward', 'quote'].some(k => typeof w[k as keyof Week] !== 'string')) throw new Error('주간 기록이 올바르지 않습니다.');
   return j;
